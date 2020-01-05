@@ -54,6 +54,8 @@
       console.log(data);
       var metros = Object.keys(data);
 
+      metros.sort();
+
       metros.forEach(function(metro) {
          $('#metro')
              .append($("<option></option>")
