@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Are you low-income?</title>
+
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/js/select2.min.js"></script>
+
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+</head>
+<body>
+  <h1>Are you low-income?</h1>
+
+  <form onSubmit="return false;">
+  <div class="ui-widget">
+    <label for="metro">County / Metro Area: </label>
+    <select id="metro" size="40"></select>
+  </div>
+
+  <div class="ui-widget">
+    <label for="household-size">Number of people in household: </label>
+    <select id="household-size">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8 or more</option>
+    </select>
+  </div>
+
+  <div class="ui-widget">
+    <label for="income">Yearly household income: </label>
+    <input type="number" id="income"/>
+  </div>
+
+  <input type="submit" id="submit" value = "Tell Me!"/>
+  </form>
+
+  <h3><div id="result"></div></h3>
+  <div id="result-explainer"></div>
+
+
+  <script>
+    var data;
+    $.getJSON( "/data-ca.json", function(d) {
+      data = d;
+      console.log(data);
+      var metros = Object.keys(data);
+
+      metros.forEach(function(metro) {
+         $('#metro')
+             .append($("<option></option>")
+                        .attr("value", metro)
+                        .text(metro));
+      });
+
+      $("#metro").select2();
+    });
+
+    $("#submit").click(function() {
+      var metro = $("#metro").val();
+      var householdSize = parseInt($("#household-size").val(), 10);
+      var income = $("#income").val();
+
+      // validate metro
+      var mData = data[metro];
+      if (!mData) {
+        alert("Please select county / metro area from the dropdown!");
+        return;
+      }
+
+      // validate income
+      if (income == '') {
+        alert("Please enter an income!");
+        return;
+      }
+      income = parseFloat(income);
+
+      var incomeLimit = mData.low_income[householdSize - 1];
+      if (income <= incomeLimit) {
+        $("#result").text("You are low-income.");
+      } else {
+        $("#result").text("You are not low-income.");
+      }
+      var commonText = "For your metro area and household size, a yearly household income of $" + incomeLimit + " or below is considered low-income.";
+      $("#result-explainer").text(commonText);
+    });
+
+  </script>
+</body>
+</html>
