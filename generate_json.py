@@ -40,6 +40,8 @@ for i, l in enumerate(lines):
     m = re.search(r'LOW-INCOME (.*)', l)
     if m is not None:
         metro_data['low_income'] = list(map(int, m.group(1).strip().split()))
+
+        # add this metro to the data, and reset
         data[metro_name] = metro_data
         metro_name = None
         metro_data = {}
@@ -48,3 +50,8 @@ print('\n'.join(sorted(data.keys())))
 print(len(data.keys()))
 with open('data.json', 'w') as f:
     json.dump(data, f, indent=2)
+
+# california data only
+ca_data = {k: v for k, v in data.items() if ', CA' in k}
+with open('data-ca.json', 'w') as f:
+    json.dump(ca_data, f, indent=2)
